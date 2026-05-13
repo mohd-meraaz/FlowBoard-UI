@@ -1,0 +1,98 @@
+<div class="share-overlay" (click)="close()">
+  <section class="share-modal surface-glass" (click)="$event.stopPropagation()">
+    <header class="share-header">
+      <div>
+        <span class="kicker">Board share</span>
+        <h2>Share {{ board.name }}</h2>
+        <p>{{ isPublicBoard ? 'Public boards can be shared by link or email.' : 'Turn on guest access to copy a no-login link, or keep it private and share by email.' }}</p>
+      </div>
+
+      <button mat-icon-button (click)="close()" aria-label="Close share modal">
+        <i data-lucide="x"></i>
+      </button>
+    </header>
+
+    <section class="share-section public-link-section">
+      <div class="section-copy">
+        <h3>{{ isPublicBoard ? 'Public link' : 'Guest link access' }}</h3>
+        <p>{{ isPublicBoard ? 'Anyone with this link can open the board in read-only mode.' : 'Enable public access to generate a link that opens this board without login in read-only mode.' }}</p>
+      </div>
+
+      <ng-container *ngIf="isPublicBoard; else enablePublicAccess">
+        <input
+          [id]="'share-link-' + board.id"
+          class="share-link-input"
+          type="text"
+          [value]="publicShareUrl"
+          readonly
+          aria-label="Public share link">
+
+        <button mat-flat-button (click)="copyPublicLink()" [disabled]="copyingLink || loadingShareLink || !publicShareUrl">
+          <mat-spinner *ngIf="copyingLink || loadingShareLink" diameter="18"></mat-spinner>
+          <span>{{ loadingShareLink ? 'Preparing...' : (copyingLink ? 'Copying...' : 'Copy link') }}</span>
+        </button>
+      </ng-container>
+
+      <ng-template #enablePublicAccess>
+        <div class="share-link-placeholder">
+          <span>This board is private right now.</span>
+          <span>Make it public once, then copy the share link from here.</span>
+        </div>
+
+        <button mat-flat-button class="enable-link-btn" (click)="enablePublicLink()" [disabled]="enablingPublicLink">
+          <mat-spinner *ngIf="enablingPublicLink" diameter="18"></mat-spinner>
+          <span>{{ enablingPublicLink ? 'Enabling...' : 'Make public and copy link' }}</span>
+        </button>
+      </ng-template>
+    </section>
+
+    <section class="share-section invite-section">
+      <div class="section-copy">
+        <h3>Share via email</h3>
+        <p>Enter one or more email addresses separated by commas, spaces, or new lines.</p>
+      </div>
+
+      <textarea
+        [(ngModel)]="inviteInput"
+        rows="4"
+        class="invite-input"
+        placeholder="alex@example.com, sam@example.com"></textarea>
+
+      <div class="invite-actions">
+        <button mat-flat-button (click)="sendInvites()" [disabled]="sendingInvites">
+          <mat-spinner *ngIf="sendingInvites" diameter="18"></mat-spinner>
+          <span>{{ sendingInvites ? 'Sending...' : 'Send invitation' }}</span>
+        </button>
+      </div>
+    </section>
+
+    <section class="share-section shared-list">
+      <div class="section-copy">
+        <h3>Already shared</h3>
+        <p>People who currently have invite-based access to this board.</p>
+      </div>
+
+      <div *ngIf="loadingShared" class="empty-state">
+        <mat-spinner diameter="18"></mat-spinner>
+        <span>Loading shared emails...</span>
+      </div>
+
+      <div *ngIf="!loadingShared && sharedEmails.length === 0" class="empty-state">
+        No shared emails yet.
+      </div>
+
+      <div *ngIf="!loadingShared && sharedEmails.length > 0" class="shared-email-list">
+        <article *ngFor="let item of sharedEmails" class="shared-email-item">
+          <div>
+            <strong>{{ item.email }}</strong>
+            <span>Shared {{ item.createdAt | date:'MMM d, h:mm a' }}</span>
+          </div>
+
+          <button mat-button class="remove-btn" (click)="revoke(item.email)" [disabled]="removingEmail === item.email">
+            {{ removingEmail === item.email ? 'Removing...' : 'Remove' }}
+          </button>
+        </article>
+      </div>
+    </section>
+  </section>
+</div>

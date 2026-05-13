@@ -1,0 +1,78 @@
+<div class="app-shell" [class.sidebar-open]="sidebarOpen()">
+  <div class="shell-overlay" (click)="closeSidebar()"></div>
+
+  <aside class="shell-sidebar surface-glass flow-entrance">
+    <div class="sidebar-top">
+      <a routerLink="/dashboard" class="brand-lockup" (click)="closeSidebar()">
+        <span class="flow-logo-icon"><i data-lucide="workflow"></i></span>
+        <span class="brand-copy">
+          <span class="flow-logo-text">FlowBoard</span>
+          <span class="brand-caption">Precision task orchestration</span>
+        </span>
+      </a>
+
+      <button mat-icon-button type="button" aria-label="Close sidebar" class="sidebar-close" (click)="closeSidebar()">
+        <i data-lucide="x"></i>
+      </button>
+    </div>
+
+    <div class="plan-panel">
+      <span class="kicker">{{ isFreeUser() ? 'Starter plan' : 'Premium plan' }}</span>
+      <h3>{{ planName() }}</h3>
+      <p>{{ isFreeUser() ? 'Upgrade when your workspace velocity needs more room.' : 'Your team is running with premium workspace power.' }}</p>
+      <a routerLink="/pricing" class="flow-button-primary plan-link" (click)="closeSidebar()">
+        <i data-lucide="sparkles"></i>
+        <span>{{ isFreeUser() ? 'Upgrade plan' : 'Manage plan' }}</span>
+      </a>
+    </div>
+
+    <nav class="sidebar-nav">
+      <a
+        *ngFor="let item of navItems"
+        [routerLink]="item.route"
+        routerLinkActive="is-active"
+        [routerLinkActiveOptions]="{ exact: item.exact }"
+        class="nav-item"
+        (click)="closeSidebar()">
+        <span class="nav-icon"><i [attr.data-lucide]="item.icon"></i></span>
+        <span>{{ item.label }}</span>
+      </a>
+
+      <a
+        *ngIf="authService.isAdmin()"
+        routerLink="/admin"
+        routerLinkActive="is-active"
+        class="nav-item"
+        (click)="closeSidebar()">
+        <span class="nav-icon"><i data-lucide="shield"></i></span>
+        <span>Admin</span>
+      </a>
+    </nav>
+
+    <div class="sidebar-footer" *ngIf="user$ | async as user">
+      <div class="mini-profile">
+        <div class="avatar" [style.background]="user.avatarUrl ? 'url(' + user.avatarUrl + ') center/cover' : 'linear-gradient(135deg, rgba(99,102,241,0.9), rgba(20,184,166,0.6))'">
+          {{ user.avatarUrl ? '' : (user.fullName[0] || 'U') }}
+        </div>
+        <div class="mini-profile-copy">
+          <strong>{{ user.fullName || 'User' }}</strong>
+          <span>{{ user.email }}</span>
+        </div>
+      </div>
+      <button mat-button class="signout-btn" (click)="logout()">
+        <i data-lucide="log-out"></i>
+        <span>Sign out</span>
+      </button>
+    </div>
+  </aside>
+
+  <div class="shell-main">
+    <button mat-icon-button type="button" aria-label="Open sidebar" class="mobile-toggle floating-toggle" (click)="toggleSidebar()">
+      <i data-lucide="panel-left"></i>
+    </button>
+
+    <main class="page-body flow-entrance delay-1">
+      <router-outlet></router-outlet>
+    </main>
+  </div>
+</div>

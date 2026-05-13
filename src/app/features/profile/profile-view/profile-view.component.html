@@ -1,0 +1,133 @@
+<div class="profile-layout flow-page-shell" *ngIf="user">
+  <div class="flow-page-content">
+    <section class="profile-header surface-glass flow-entrance">
+      <div class="header-content">
+        <button mat-icon-button routerLink="/dashboard" class="back-btn">
+          <i data-lucide="arrow-left"></i>
+        </button>
+        <div>
+          <span class="kicker">Settings</span>
+          <h1 class="header-title">Account Settings</h1>
+          <p class="header-subtitle">Refine your profile, account identity, and security without leaving the workspace flow.</p>
+        </div>
+      </div>
+    </section>
+
+    <div class="profile-container">
+      <aside class="profile-sidebar flow-entrance delay-1">
+        <section class="sidebar-card surface-glass">
+          <div class="avatar-box">
+            <img *ngIf="getAvatarUrl()" class="real-avatar" [src]="getAvatarUrl()" (error)="onAvatarError($event)" (load)="onAvatarLoad()" alt="Profile avatar" />
+            <div *ngIf="!getAvatarUrl()" class="initials-avatar">{{ getInitials() }}</div>
+          </div>
+
+          <div class="user-meta">
+            <h2 class="u-name">{{ user.fullName }}</h2>
+            <p class="u-username" *ngIf="user.bio?.trim(); else usernameFallback">{{ user.bio }}</p>
+            <ng-template #usernameFallback>
+              <p class="u-username">&#64;{{ user.username }}</p>
+            </ng-template>
+            <span class="u-badge">Workspace operator</span>
+          </div>
+        </section>
+      </aside>
+
+      <main class="profile-main">
+        <section class="config-section surface-glass flow-entrance delay-2">
+          <div class="section-header">
+            <i data-lucide="user-round-cog"></i>
+            <div>
+              <h3>Public profile</h3>
+              <p class="section-desc">Update the details your team sees when you show up across boards and activity logs.</p>
+            </div>
+          </div>
+
+          <form [formGroup]="profileForm" (ngSubmit)="saveProfile()">
+            <div class="form-grid">
+              <div>
+                <label class="custom-label">Full name</label>
+                <mat-form-field appearance="outline">
+                  <input matInput formControlName="fullname" placeholder="Your name" />
+                </mat-form-field>
+              </div>
+
+              <div>
+                <label class="custom-label">Username</label>
+                <mat-form-field appearance="outline">
+                  <input matInput formControlName="username" placeholder="your_handle" />
+                </mat-form-field>
+              </div>
+            </div>
+
+            <div>
+              <label class="custom-label">Avatar URL</label>
+              <mat-form-field appearance="outline" class="full-width">
+                <input matInput formControlName="avatarUrl" placeholder="https://..." />
+              </mat-form-field>
+            </div>
+
+            <div>
+              <label class="custom-label">Bio</label>
+              <mat-form-field appearance="outline" class="full-width">
+                <textarea matInput formControlName="bio" rows="4" placeholder="Tell your teammates what you own, love, or are driving next."></textarea>
+              </mat-form-field>
+            </div>
+
+            <div class="form-actions" [class.visible]="hasProfileChanges()">
+              <button *ngIf="hasProfileChanges()" mat-flat-button type="submit" [disabled]="savingProfile || profileForm.invalid">
+                <mat-spinner *ngIf="savingProfile" diameter="18"></mat-spinner>
+                <span>{{ savingProfile ? 'Updating...' : 'Save changes' }}</span>
+              </button>
+            </div>
+          </form>
+        </section>
+
+        <section class="config-section surface-glass flow-entrance delay-3">
+          <div class="section-header">
+            <i data-lucide="shield-check"></i>
+            <div>
+              <h3>Security</h3>
+              <p class="section-desc">Keep access deliberate with a fresh password and a cleaner security posture.</p>
+            </div>
+          </div>
+
+          <form [formGroup]="passwordForm" (ngSubmit)="changePassword()">
+            <div class="form-grid">
+              <div>
+                <label class="custom-label">Current password</label>
+                <mat-form-field appearance="outline">
+                  <input matInput [type]="hideOld ? 'password' : 'text'" formControlName="oldPassword" placeholder="Enter current password" />
+                  <button mat-icon-button matSuffix (click)="hideOld = !hideOld" type="button">
+                    <i [attr.data-lucide]="hideOld ? 'eye-off' : 'eye'"></i>
+                  </button>
+                </mat-form-field>
+              </div>
+
+              <div>
+                <label class="custom-label">New password</label>
+                <mat-form-field appearance="outline">
+                  <input matInput [type]="hideNew ? 'password' : 'text'" formControlName="newPassword" placeholder="Enter new password" />
+                  <button mat-icon-button matSuffix (click)="hideNew = !hideNew" type="button">
+                    <i [attr.data-lucide]="hideNew ? 'eye-off' : 'eye'"></i>
+                  </button>
+                </mat-form-field>
+              </div>
+            </div>
+
+            <div class="form-actions visible">
+              <button mat-flat-button type="submit" [disabled]="savingPassword || passwordForm.invalid">
+                <mat-spinner *ngIf="savingPassword" diameter="18"></mat-spinner>
+                <span>{{ savingPassword ? 'Updating...' : 'Update password' }}</span>
+              </button>
+            </div>
+          </form>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <div class="loading-overlay" *ngIf="loading">
+    <mat-spinner diameter="48"></mat-spinner>
+    <p>Loading your profile...</p>
+  </div>
+</div>

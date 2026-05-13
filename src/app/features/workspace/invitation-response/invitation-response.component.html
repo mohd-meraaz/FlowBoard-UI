@@ -1,0 +1,34 @@
+<section class="invite-shell">
+  <div class="invite-card">
+    <span class="invite-kicker">Workspace invitation</span>
+    <h1>Respond to invitation</h1>
+    <p *ngIf="token; else invalidInvite">
+      Choose whether you want to join this workspace now. The sender will be notified of your response.
+    </p>
+
+    <ng-template #invalidInvite>
+      <p>This invitation link is missing a token. Please open the latest invitation again.</p>
+    </ng-template>
+
+    <div class="invite-actions" *ngIf="token">
+      <button
+        mat-flat-button
+        color="primary"
+        (click)="respond('accept')"
+        [disabled]="actionInFlight !== null">
+        <mat-spinner *ngIf="actionInFlight === 'accept'" diameter="18"></mat-spinner>
+        <span>{{ actionInFlight === 'accept' ? 'Accepting...' : 'Accept invitation' }}</span>
+      </button>
+
+      <button
+        mat-stroked-button
+        (click)="respond('decline')"
+        [disabled]="actionInFlight !== null">
+        <mat-spinner *ngIf="actionInFlight === 'decline'" diameter="18"></mat-spinner>
+        <span>{{ actionInFlight === 'decline' ? 'Declining...' : 'Decline invitation' }}</span>
+      </button>
+    </div>
+
+    <a routerLink="/notifications" class="invite-link">Back to notifications</a>
+  </div>
+</section>

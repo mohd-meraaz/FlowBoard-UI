@@ -1,0 +1,260 @@
+<div class="workspace-layout flow-page-shell">
+  <div class="workspace-content-shell flow-page-content" *ngIf="workspace as ws">
+    <section class="ws-hero surface-glass flow-entrance">
+      <div class="hero-main">
+        <button mat-icon-button (click)="goBack()" class="back-btn">
+          <i data-lucide="arrow-left"></i>
+        </button>
+
+        <div class="ws-header-avatar" [style.background]="'hsl(' + (ws.id * 47 % 360) + ',60%,50%)'">{{ getInitials(ws.name) }}</div>
+
+        <div class="ws-titles">
+          <span class="kicker">Workspace command</span>
+          <h1 class="ws-header-title">{{ ws.name }}</h1>
+          <div class="ws-header-badges">
+            <span class="ws-header-badge">{{ ws.visibility | titlecase }}</span>
+            <span class="ws-header-badge">{{ ws.members.length }} members</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="ws-header-actions">
+        <button mat-flat-button class="create-btn" (click)="activeTab = 'boards'; showCreateBoard = true">
+          <i data-lucide="plus"></i>
+          <span>New Board</span>
+        </button>
+      </div>
+    </section>
+
+    <div class="ws-tabs flow-entrance delay-1">
+      <button class="tab-btn" [class.active]="activeTab === 'boards'" (click)="activeTab = 'boards'">
+        <i data-lucide="layout-grid"></i>
+        <span>Boards</span>
+      </button>
+      <button class="tab-btn" [class.active]="activeTab === 'members'" (click)="activeTab = 'members'; loadInvitations()">
+        <i data-lucide="users-round"></i>
+        <span>Members</span>
+      </button>
+      <button class="tab-btn" *ngIf="isOwner()" [class.active]="activeTab === 'settings'" (click)="activeTab = 'settings'">
+        <i data-lucide="sliders-horizontal"></i>
+        <span>Settings</span>
+      </button>
+    </div>
+
+    <div class="ws-content">
+      <div *ngIf="loading" class="loading-state surface-glass">
+        <mat-spinner diameter="44"></mat-spinner>
+        <p>Loading workspace...</p>
+      </div>
+
+      <ng-container *ngIf="!loading && activeTab === 'boards'">
+        <section *ngIf="showCreateBoard" class="create-board-form flow-entrance delay-2">
+          <div class="surface-header">
+            <div>
+              <span class="kicker">Create board</span>
+              <h3>Spin up a new lane of work</h3>
+            </div>
+          </div>
+
+          <form [formGroup]="boardForm" (ngSubmit)="createBoard()" class="board-form-grid">
+            <div class="span-2">
+              <label class="custom-label">Board name <span class="req">*</span></label>
+              <mat-form-field appearance="outline" class="full-width">
+                <input matInput formControlName="name" placeholder="Sprint Board" />
+              </mat-form-field>
+            </div>
+
+            <div>
+              <label class="custom-label">Visibility <span class="req">*</span></label>
+              <mat-form-field appearance="outline">
+                <mat-select formControlName="visibility">
+                  <mat-option value="PRIVATE">Private</mat-option>
+                  <mat-option value="PUBLIC">Public</mat-option>
+                </mat-select>
+              </mat-form-field>
+            </div>
+
+            <div>
+              <label class="custom-label">Board theme</label>
+              <div class="color-picker-group">
+                <input type="color" formControlName="background" class="modern-color-input" />
+                <span class="text-mono">{{ boardForm.value.background }}</span>
+              </div>
+            </div>
+
+            <div class="span-2">
+              <label class="custom-label">Description</label>
+              <mat-form-field appearance="outline" class="full-width">
+                <textarea matInput formControlName="description" rows="3" placeholder="What is this board responsible for?"></textarea>
+              </mat-form-field>
+            </div>
+
+            <div class="form-actions span-2">
+              <button mat-button type="button" (click)="showCreateBoard = false">Cancel</button>
+              <button mat-flat-button type="submit" [disabled]="creatingBoard || boardForm.invalid">{{ creatingBoard ? 'Creating...' : 'Create board' }}</button>
+            </div>
+          </form>
+        </section>
+
+        <section *ngIf="boards.length > 0" class="boards-grid flow-entrance delay-3">
+          <article *ngFor="let board of boards; let i = index" class="board-card" [class.closed]="board.isClosed" (click)="openBoard(board.id)" [style.--board-tone]="board.background || '#6366f1'" [style.animationDelay.ms]="i * 60">
+            <div class="board-cover"></div>
+            <div class="board-card-body">
+              <div class="board-name-row">
+                <div>
+                  <h3 class="board-name">{{ board.name }}</h3>
+                  <span class="board-chip">{{ board.visibility }}</span>
+                </div>
+                <button mat-icon-button class="board-menu" [matMenuTriggerFor]="boardMenu" (click)="$event.stopPropagation()">
+                  <i data-lucide="ellipsis"></i>
+                </button>
+              </div>
+
+              <mat-menu #boardMenu="matMenu">
+                <button mat-menu-item (click)="openBoard(board.id)">
+                  <i data-lucide="arrow-up-right"></i>
+                  <span>Open</span>
+                </button>
+                <button mat-menu-item (click)="deleteBoard(board.id, $event)">
+                  <i data-lucide="trash-2"></i>
+                  <span>Delete</span>
+                </button>
+              </mat-menu>
+
+              <p class="board-desc">{{ board.description || 'A clean surface ready for planning, sequencing, and execution.' }}</p>
+
+              <div class="board-footer">
+                <span class="board-badge" [class.closed]="board.isClosed">{{ board.isClosed ? 'Closed' : 'Active' }}</span>
+                <span class="board-members"><i data-lucide="users-round"></i>{{ board.memberCount }}</span>
+              </div>
+            </div>
+          </article>
+        </section>
+
+        <section *ngIf="boards.length === 0 && !showCreateBoard" class="empty-state flow-entrance delay-3">
+          <span class="flow-empty-icon"><i data-lucide="layout-grid"></i></span>
+          <h3>No boards yet</h3>
+          <p>Create your first board to give this workspace a crisp operational rhythm.</p>
+          <button mat-flat-button (click)="showCreateBoard = true">Create board</button>
+        </section>
+      </ng-container>
+
+      <ng-container *ngIf="!loading && activeTab === 'members'">
+        <div class="members-layout flow-entrance delay-2">
+          <aside class="members-sidebar">
+            <section class="section-card surface-glass">
+              <span class="kicker">Invite member</span>
+              <h3>Bring someone in</h3>
+              <p class="section-desc">Add collaborators with the right role and keep workspace access intentional.</p>
+
+              <form [formGroup]="inviteForm" (ngSubmit)="inviteMember()" class="invite-form">
+                <div>
+                  <label class="custom-label">Email address</label>
+                  <mat-form-field appearance="outline" class="full-width">
+                    <input matInput formControlName="email" placeholder="colleague@example.com" />
+                  </mat-form-field>
+                </div>
+
+                <div>
+                  <label class="custom-label">Role</label>
+                  <mat-form-field appearance="outline" class="full-width">
+                    <mat-select formControlName="role">
+                      <mat-option value="MEMBER">Member</mat-option>
+                      <mat-option value="ADMIN">Admin</mat-option>
+                    </mat-select>
+                  </mat-form-field>
+                </div>
+
+                <button mat-flat-button class="full-width" [disabled]="inviting || inviteForm.invalid">{{ inviting ? 'Sending...' : 'Send invitation' }}</button>
+              </form>
+            </section>
+          </aside>
+
+          <div class="members-main">
+            <section class="section-glass surface-glass">
+              <div class="surface-header">
+                <div>
+                  <span class="kicker">Active members</span>
+                  <h3 class="section-title">Team roster</h3>
+                </div>
+              </div>
+
+              <div class="member-list">
+                <div *ngFor="let member of ws.members" class="member-item">
+                  <div class="member-avatar" [style.background]="member.user?.avatarUrl ? 'url(' + member.user?.avatarUrl + ') center/cover' : 'linear-gradient(135deg, rgba(99,102,241,0.9), rgba(20,184,166,0.6))'">
+                    {{ member.user?.avatarUrl ? '' : (member.user?.fullName ? member.user!.fullName[0] : member.userId) }}
+                  </div>
+                  <div class="member-info">
+                    <p class="member-name">{{ member.user?.fullName || ('User #' + member.userId) }}</p>
+                    <span class="member-role" [class.owner]="member.userId === ws.ownerId">{{ member.userId === ws.ownerId ? 'Owner' : member.role }}</span>
+                  </div>
+                  <button mat-icon-button *ngIf="isOwner() && member.userId !== userId" [matMenuTriggerFor]="memberMenu" class="member-menu-btn">
+                    <i data-lucide="ellipsis"></i>
+                  </button>
+                  <mat-menu #memberMenu="matMenu">
+                    <button mat-menu-item (click)="removeMember(member.userId)">
+                      <i data-lucide="user-minus"></i>
+                      <span>Remove from workspace</span>
+                    </button>
+                  </mat-menu>
+                </div>
+              </div>
+            </section>
+
+            <section class="section-glass surface-glass" *ngIf="invitations.length > 0">
+              <div class="surface-header">
+                <div>
+                  <span class="kicker">Pending invitations</span>
+                  <h3 class="section-title">Awaiting response</h3>
+                </div>
+              </div>
+
+              <div class="member-list">
+                <div *ngFor="let invite of invitations" class="member-item invitation">
+                  <div class="member-avatar invitation-avatar"><i data-lucide="mail"></i></div>
+                  <div class="member-info">
+                    <p class="member-name">{{ invite.email }}</p>
+                    <span class="member-role">Invited as {{ invite.role }}</span>
+                  </div>
+                  <button mat-button class="revoke-btn" (click)="revokeInvitation(invite.id)">Revoke</button>
+                </div>
+              </div>
+            </section>
+          </div>
+        </div>
+      </ng-container>
+
+      <ng-container *ngIf="!loading && activeTab === 'settings'">
+        <div class="settings-layout flow-entrance delay-2">
+          <aside class="settings-nav surface-glass">
+            <div class="settings-link active">Visibility</div>
+            <div class="settings-link">Governance</div>
+            <div class="settings-link">Danger zone</div>
+          </aside>
+
+          <div class="settings-main">
+            <section class="settings-section surface-glass">
+              <span class="kicker">Visibility</span>
+              <h3>Who can discover this workspace?</h3>
+              <p class="section-desc">Changing to Public lets anyone with the link view this workspace. Keep it private when the work should stay contained.</p>
+
+              <div class="visibility-choices">
+                <button mat-stroked-button class="vis-choice" [class.active]="ws.visibility === 'PRIVATE'" (click)="updateWorkspaceVisibility('PRIVATE')">Private</button>
+                <button mat-stroked-button class="vis-choice" [class.active]="ws.visibility === 'PUBLIC'" (click)="updateWorkspaceVisibility('PUBLIC')">Public</button>
+              </div>
+            </section>
+
+            <section class="settings-section danger-zone surface-glass">
+              <span class="kicker">Danger zone</span>
+              <h3>Delete workspace</h3>
+              <p class="section-desc">This permanently removes the workspace and all boards inside it.</p>
+              <div class="danger-actions">
+                <button mat-flat-button class="danger" (click)="deleteWorkspace()">Delete this workspace</button>
+              </div>
+            </section>
+          </div>
+        </div>
+      </ng-container>
+    </div>
+  </div>
+</div>

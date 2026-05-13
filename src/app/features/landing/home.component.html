@@ -1,0 +1,170 @@
+<!-- Animated Background Blobs -->
+<div class="animated-blobs">
+  <div class="blob blob-1"></div>
+  <div class="blob blob-2"></div>
+  <div class="blob blob-3"></div>
+</div>
+
+<!-- Sticky Navigation Bar -->
+<nav class="navbar" [class.scrolled]="scrolled">
+  <div class="navbar-container">
+    <div class="navbar-brand" (click)="goHome()" role="link" tabindex="0">
+      <span class="logo-icon">⚡</span>
+      <span class="brand-name">FlowBoard</span>
+    </div>
+
+    <ul class="nav-links">
+      <li><a href="" (click)="goHome($event)">Home</a></li>
+      <li><a [routerLink]="['/']" [fragment]="'features'">Features</a></li>
+    </ul>
+
+    <div class="nav-actions">
+      <button mat-button class="btn-ghost" routerLink="/login">
+        Sign In
+      </button>
+      <button mat-raised-button class="btn-gradient" routerLink="/register">
+        Get Started
+      </button>
+    </div>
+  </div>
+</nav>
+
+<!-- Hero Section -->
+<section class="hero">
+  <div class="hero-content">
+    <div class="hero-badge">
+      <span class="badge-icon">✨</span>
+      <span>Enterprise-Grade Project Management</span>
+    </div>
+
+    <h1 class="hero-title">
+      Your team's workflow,
+      <span class="gradient-text">supercharged</span>
+    </h1>
+
+    <p class="hero-subtitle">
+      Seamless collaboration meets enterprise architecture. FlowBoard powers teams worldwide
+      with real-time updates, drag-and-drop simplicity, and microservices reliability.
+    </p>
+
+    <div class="hero-actions">
+      <button mat-raised-button class="btn-primary-hero" routerLink="/login">
+        <mat-icon>arrow_forward</mat-icon>
+        Sign In
+      </button>
+      <button mat-raised-button class="btn-secondary-hero" routerLink="/register">
+        <mat-icon>play_arrow</mat-icon>
+        Create Account
+      </button>
+    </div>
+
+    <p class="hero-social-proof">
+       🚀 No credit card required
+    </p>
+  </div>
+
+  <div class="kanban-preview">
+    <div class="kanban-header">
+      <span class="kanban-title">Project Sprint</span>
+      <span class="kanban-date">April 2026</span>
+    </div>
+    <div class="kanban-board">
+      <div class="kanban-column">
+        <div class="column-header">
+          <span class="column-badge">To-Do</span>
+          <span class="column-count">3</span>
+        </div>
+        <div class="task-card">
+          <div class="task-label">Design System</div>
+          <div class="task-meta">•••</div>
+        </div>
+        <div class="task-card">
+          <div class="task-label">API Integration</div>
+          <div class="task-meta">•••</div>
+        </div>
+        <div class="task-card">
+          <div class="task-label">User Testing</div>
+          <div class="task-meta">•••</div>
+        </div>
+      </div>
+
+      <div class="kanban-column">
+        <div class="column-header">
+          <span class="column-badge in-progress">In Progress</span>
+          <span class="column-count">2</span>
+        </div>
+        <div class="task-card active">
+          <div class="task-label">Frontend Build</div>
+          <div class="task-meta">•••</div>
+        </div>
+        <div class="task-card">
+          <div class="task-label">Bug Fixes</div>
+          <div class="task-meta">•••</div>
+        </div>
+      </div>
+
+      <div class="kanban-column">
+        <div class="column-header">
+          <span class="column-badge done">Done</span>
+          <span class="column-count">5</span>
+        </div>
+        <div class="task-card completed">
+          <div class="task-label">Database Setup</div>
+          <div class="task-meta">✓</div>
+        </div>
+        <div class="task-card completed">
+          <div class="task-label">Auth System</div>
+          <div class="task-meta">✓</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="features" id="features">
+  <div class="section-container">
+    <div class="section-header">
+      <h2>Everything your team needs</h2>
+      <p>All-in-one platform for project management and collaboration</p>
+    </div>
+
+    <div class="features-grid">
+      <div *ngFor="let feature of features" class="feature-card">
+        <div class="feature-emoji">{{ feature.emoji }}</div>
+        <h3 class="feature-title">{{ feature.title }}</h3>
+        <p class="feature-description">{{ feature.description }}</p>
+        <div class="feature-hover-effect"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="cta-banner">
+  <div class="section-container">
+    <div class="banner-content">
+      <h2>Ready to supercharge your team?</h2>
+      <p>Join hundreds of teams already using FlowBoard to ship faster</p>
+
+      <div class="banner-actions">
+        <button mat-raised-button class="btn-banner-primary" routerLink="/login">
+          Start Free Trial
+        </button>
+        <button mat-raised-button class="btn-banner-secondary" routerLink="/register">
+          Schedule Demo
+        </button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer class="footer">
+  <div class="footer-container footer-minimal">
+    <div class="footer-brand">
+      <span class="logo-icon">⚡</span>
+      <span>FlowBoard</span>
+    </div>
+    <div class="footer-bottom minimal">
+      <p>&copy; 2026 FlowBoard. All rights reserved.</p>
+    </div>
+  </div>
+</footer>

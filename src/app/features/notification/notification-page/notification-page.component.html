@@ -1,0 +1,73 @@
+<section class="notification-page flow-page-shell">
+  <div class="flow-page-content">
+    <div class="page-header flow-entrance">
+      <div>
+        <span class="kicker">Inbox</span>
+        <h1 class="page-title">Notifications</h1>
+        <p class="page-subtitle">A clean timeline of updates across workspaces and boards, with unread changes surfaced first.</p>
+      </div>
+      <div class="header-actions">
+        <a mat-stroked-button routerLink="/dashboard">
+          <i data-lucide="arrow-left"></i>
+          <span>Dashboard</span>
+        </a>
+        <button mat-flat-button (click)="markAllAsRead()">
+          <i data-lucide="check-check"></i>
+          <span>Mark all as read</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="section-glass page-card flow-entrance delay-1">
+      <div *ngIf="loading$ | async" class="loading-state">
+        <mat-spinner diameter="40"></mat-spinner>
+        <p>Loading notifications...</p>
+      </div>
+
+      <ng-container *ngIf="!(loading$ | async)">
+        <ng-container *ngIf="notifications$ | async as notifications">
+          <div *ngIf="notifications.length === 0" class="empty-state">
+            <span class="flow-empty-icon"><i data-lucide="bell-off"></i></span>
+            <h3>All caught up</h3>
+            <p>No new notifications right now.</p>
+          </div>
+
+          <div *ngIf="notifications.length > 0" class="notif-list">
+            <div class="notif-item" *ngFor="let notif of notifications" [class.unread]="!notif.isRead" (click)="markAsRead(notif)">
+              <div class="notif-icon-wrapper" [ngClass]="notif.type.toLowerCase()">
+                <i [attr.data-lucide]="getTypeIcon(notif.type)"></i>
+              </div>
+              <div class="notif-content">
+                <div class="notif-row">
+                  <span class="notif-item-title">{{ notif.title }}</span>
+                  <span class="notif-time">{{ notif.createdAt | date:'MMM d, h:mm a' }}</span>
+                </div>
+                <p class="notif-message">{{ notif.message }}</p>
+
+                <div class="notif-actions" *ngIf="isWorkspaceInvitation(notif)">
+                  <button
+                    mat-flat-button
+                    type="button"
+                    (click)="respondToInvitation(notif, 'accept', $event)"
+                    [disabled]="!!invitationActionState[notif.id]">
+                    <mat-spinner *ngIf="isInvitationActionLoading(notif.id, 'accept')" diameter="16"></mat-spinner>
+                    <span>{{ isInvitationActionLoading(notif.id, 'accept') ? 'Accepting...' : 'Accept' }}</span>
+                  </button>
+
+                  <button
+                    mat-stroked-button
+                    type="button"
+                    (click)="respondToInvitation(notif, 'decline', $event)"
+                    [disabled]="!!invitationActionState[notif.id]">
+                    <mat-spinner *ngIf="isInvitationActionLoading(notif.id, 'decline')" diameter="16"></mat-spinner>
+                    <span>{{ isInvitationActionLoading(notif.id, 'decline') ? 'Declining...' : 'Decline' }}</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </ng-container>
+      </ng-container>
+    </div>
+  </div>
+</section>

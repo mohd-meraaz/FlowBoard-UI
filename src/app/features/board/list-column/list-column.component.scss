@@ -1,0 +1,61 @@
+ :host {
+  display: block;
+}
+
+.list-column-demo {
+  border-radius: 28px;
+  overflow: hidden;
+  min-width: 280px;
+  max-width: 360px;
+}
+
+.demo-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 18px;
+  border-bottom: 1px solid rgba(var(--primary-rgb), 0.08);
+}
+
+.demo-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  background: var(--primary);
+  box-shadow: 0 0 0 4px rgba(var(--primary-rgb), 0.1);
+}
+
+.name {
+  font-weight: 800;
+  color: var(--text-primary);
+}
+
+.count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  padding: 0 10px;
+  font-size: 0.78rem;
+  font-weight: 800;
+  color: var(--text-secondary);
+  background: rgba(var(--primary-rgb), 0.08);
+}
+
+.demo-body {
+  padding: 18px;
+}
+
+.demo-empty {
+  margin: 0;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}

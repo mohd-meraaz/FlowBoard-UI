@@ -1,0 +1,45 @@
+<button mat-icon-button [matMenuTriggerFor]="notifMenu" class="notif-bell" (click)="refreshNotifications()">
+  <span class="notif-badge" *ngIf="unreadCount$ | async as unread" [class.has-count]="unread > 0">{{ unread > 0 ? unread : '' }}</span>
+  <i data-lucide="bell"></i>
+</button>
+
+<mat-menu #notifMenu="matMenu" class="modern-notif-menu">
+  <div class="notif-header">
+    <div>
+      <h3 class="notif-title">Notifications</h3>
+      <p class="notif-subtitle">Signals from boards, workspaces, and teammates.</p>
+    </div>
+    <button mat-button class="mark-btn" (click)="markAllAsRead()">Mark all as read</button>
+  </div>
+
+  <div class="notif-scroll-area">
+    @if ((notifications$ | async); as notifications) {
+      @if (notifications.length === 0) {
+        <div class="notif-empty">
+          <span class="flow-empty-icon"><i data-lucide="bell-off"></i></span>
+          <div class="empty-title">All caught up</div>
+          <div class="empty-desc">Nothing urgent right now. New updates will land here.</div>
+        </div>
+      }
+
+      @for (notif of notifications; track notif.id) {
+        <div class="notif-item" [class.unread]="!notif.isRead" (click)="markAsRead(notif)">
+          <div class="notif-icon-wrapper" [ngClass]="notif.type.toLowerCase()">
+            <i [attr.data-lucide]="getTypeIcon(notif.type)"></i>
+          </div>
+          <div class="notif-content">
+            <div class="notif-row">
+              <span class="notif-item-title">{{ notif.title }}</span>
+              <span class="notif-time">{{ notif.createdAt | date:'shortTime' }}</span>
+            </div>
+            <p class="notif-message">{{ notif.message }}</p>
+          </div>
+        </div>
+      }
+    }
+  </div>
+
+  <div class="notif-footer">
+    <button mat-button routerLink="/notifications" class="view-all-btn">View all notifications</button>
+  </div>
+</mat-menu>

@@ -1,0 +1,68 @@
+.invite-shell {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background:
+    radial-gradient(circle at top left, rgba(99, 102, 241, 0.16), transparent 32%),
+    linear-gradient(180deg, #f7f8ff 0%, #eef2ff 100%);
+}
+
+.invite-card {
+  width: min(100%, 560px);
+  padding: 32px;
+  border-radius: 28px;
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid rgba(148, 163, 184, 0.24);
+  box-shadow: 0 24px 70px rgba(15, 23, 42, 0.12);
+}
+
+.invite-kicker {
+  display: inline-flex;
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: rgba(99, 102, 241, 0.12);
+  color: #4f46e5;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+}
+
+h1 {
+  margin: 18px 0 10px;
+  color: #111827;
+}
+
+p {
+  margin: 0;
+  color: #475569;
+  line-height: 1.7;
+}
+
+.invite-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 28px;
+  flex-wrap: wrap;
+}
+
+.invite-actions button {
+  min-width: 190px;
+  min-height: 46px;
+}
+
+.invite-actions button .mdc-button__label,
+.invite-actions button span {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.invite-link {
+  display: inline-block;
+  margin-top: 22px;
+  color: #4f46e5;
+  text-decoration: none;
+  font-weight: 600;
+}

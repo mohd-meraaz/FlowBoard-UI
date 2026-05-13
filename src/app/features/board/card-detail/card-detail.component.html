@@ -1,0 +1,155 @@
+<div class="card-drawer">
+  <div *ngIf="card.coverColor" class="drawer-cover" [style.background]="card.coverColor"></div>
+
+  <header class="drawer-header">
+    <div class="drawer-title-block">
+      <span class="kicker">Task detail</span>
+
+      <div *ngIf="!editTitle" class="title-display">
+        <h2 class="drawer-title" [class.read-only]="readOnly" (click)="beginTitleEdit()">{{ card.title }}</h2>
+        <button *ngIf="!readOnly" mat-icon-button (click)="beginTitleEdit()">
+          <i data-lucide="pencil-line"></i>
+        </button>
+      </div>
+
+      <div *ngIf="editTitle" class="title-editor">
+        <input
+          [(ngModel)]="editedTitle"
+          (keydown.enter)="saveTitle()"
+          (keydown.escape)="editTitle = false"
+          class="title-input"
+          autofocus />
+        <div class="title-actions">
+          <button mat-flat-button (click)="saveTitle()" [disabled]="saving">Save</button>
+          <button mat-button (click)="editTitle = false">Cancel</button>
+        </div>
+      </div>
+
+      <div class="title-meta">
+        <span class="status-badge" [ngClass]="card.status.toLowerCase()">{{ statusLabels[card.status] }}</span>
+        <span *ngIf="isOverdue()" class="status-badge blocked">Overdue</span>
+      </div>
+    </div>
+
+    <button mat-icon-button class="close-btn" (click)="close()">
+      <i data-lucide="x"></i>
+    </button>
+  </header>
+
+  <div class="drawer-content">
+    <section class="description-panel surface-glass">
+      <div class="panel-head">
+        <div>
+          <span class="kicker">Description</span>
+          <h3>Context</h3>
+        </div>
+        <button *ngIf="!editMode && !readOnly" mat-button (click)="editMode = true; editedDescription = card.description || ''">Edit</button>
+      </div>
+
+      <div *ngIf="!editMode" class="description-copy">
+        {{ card.description || 'No description yet. Add detail so the next handoff is effortless.' }}
+      </div>
+
+      <div *ngIf="editMode" class="editor-stack">
+        <textarea [(ngModel)]="editedDescription" rows="6" class="description-input"></textarea>
+        <div class="title-actions">
+          <button mat-flat-button (click)="saveDescription()" [disabled]="saving">{{ saving ? 'Saving...' : 'Save' }}</button>
+          <button mat-button (click)="editMode = false">Cancel</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="meta-panel surface-glass">
+      <div class="panel-head compact">
+        <div>
+          <span class="kicker">Properties</span>
+          <h3>State</h3>
+        </div>
+      </div>
+
+      <div class="meta-list">
+        <div class="meta-row">
+          <label>Status</label>
+          <div class="option-stack">
+            <button *ngFor="let s of statuses" (click)="setStatus(s)" [class.active]="card.status === s" class="option-btn" [disabled]="readOnly">
+              <span>{{ statusLabels[s] }}</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="meta-row">
+          <label>Priority</label>
+          <div class="option-stack">
+            <button *ngFor="let p of priorities" (click)="setPriority(p)" class="option-btn priority" [class.active]="card.priority === p" [style.--priority-color]="priorityColors[p]" [disabled]="readOnly">
+              <span>{{ p | titlecase }}</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="meta-row">
+          <label>Due date</label>
+          <div class="control-stack">
+            <input type="date" [(ngModel)]="newDueDate" class="inline-input" [class.is-overdue]="isOverdue()" [disabled]="readOnly" />
+            <div class="inline-actions" *ngIf="!readOnly">
+              <button mat-flat-button (click)="saveDueDate()" [disabled]="saving">Set</button>
+              <button *ngIf="card.dueDate" mat-button (click)="clearDueDate()">Clear</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="meta-row">
+          <label>Assignee</label>
+          <div class="assignee-list" *ngIf="boardMembers.length > 0; else noMembers">
+            <button *ngFor="let m of boardMembers" (click)="assignTo(m.userId)" class="assignee-btn" [class.active]="card.assigneeId === m.userId" [disabled]="readOnly">
+              <span class="assignee-avatar" [style.background]="m.avatarUrl ? 'url(' + m.avatarUrl + ') center/cover' : 'linear-gradient(135deg, rgba(99,102,241,0.9), rgba(20,184,166,0.6))'">{{ m.avatarUrl ? '' : (m.displayName ? m.displayName[0] : m.userId) }}</span>
+              <span>{{ m.displayName || 'User #' + m.userId }}</span>
+            </button>
+            <button *ngIf="card.assigneeId && !readOnly" mat-button class="remove-assignee" (click)="assignTo(null)">Remove assignee</button>
+          </div>
+          <ng-template #noMembers>
+            <div class="muted-copy">No members available</div>
+          </ng-template>
+        </div>
+      </div>
+    </section>
+
+    <section class="activity-panel surface-glass">
+      <div class="panel-head compact">
+        <div>
+          <span class="kicker">Activity</span>
+          <h3>Recent changes</h3>
+        </div>
+      </div>
+
+      <div *ngIf="loadingActivity" class="activity-loading">
+        <mat-spinner diameter="18"></mat-spinner>
+        <span>Loading activity...</span>
+      </div>
+
+      <div *ngIf="!loadingActivity && activity.length === 0" class="muted-copy">No activity yet.</div>
+
+      <div *ngFor="let log of activity" class="activity-item">
+        <div class="activity-avatar">{{ log.actorId }}</div>
+        <div>
+          <p>{{ log.description }}</p>
+          <span>{{ log.createdAt | date:'MMM d, h:mm a' }}</span>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <footer class="drawer-footer" *ngIf="!readOnly">
+    <button mat-button (click)="copyCard()">
+      <i data-lucide="copy"></i>
+      <span>Copy</span>
+    </button>
+    <button mat-button (click)="archiveCard()">
+      <i data-lucide="archive"></i>
+      <span>Archive</span>
+    </button>
+    <button mat-flat-button class="danger" (click)="deleteCard()">
+      <i data-lucide="trash-2"></i>
+      <span>Delete</span>
+    </button>
+  </footer>
+</div>

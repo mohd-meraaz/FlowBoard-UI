@@ -1,0 +1,302 @@
+<div class="board-layout" [ngStyle]="getBoardLayoutStyle()">
+  <div class="board-background-overlay"></div>
+
+  <section class="board-toolbar flow-entrance">
+    <div class="toolbar-left">
+      <button *ngIf="!isPublicPreview" mat-stroked-button (click)="goBack()" class="back-btn back-to-workspace-btn">
+        <i data-lucide="arrow-left"></i>
+        <span>Back to workspace</span>
+      </button>
+
+      <div class="board-info" [class.preview-board-info]="isPublicPreview">
+        <span class="kicker" [class.preview-kicker]="isPublicPreview">Board focus</span>
+        <div class="board-title-row">
+          <h1 class="board-title">{{ board?.name || 'Loading...' }}</h1>
+          <button *ngIf="!isReadOnly; else readonlyVisibility" mat-button [matMenuTriggerFor]="visibilityMenu" class="visibility-btn inline-visibility-btn">
+            <ng-container *ngIf="board?.visibility === 'PUBLIC'; else privateVisibilityIcon">
+              <svg class="visibility-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8"></circle>
+                <path d="M3 12h18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path>
+                <path d="M12 3c2.5 2.4 4 5.5 4 9s-1.5 6.6-4 9c-2.5-2.4-4-5.5-4-9s1.5-6.6 4-9Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"></path>
+              </svg>
+            </ng-container>
+            <span>{{ board?.visibility | titlecase }}</span>
+          </button>
+        </div>
+        <div class="board-meta" [class.preview-meta]="isPublicPreview">
+          <ng-template #readonlyVisibility>
+            <span class="status-pill inline-visibility-pill">
+              <ng-container *ngIf="board?.visibility === 'PUBLIC'; else privateReadonlyVisibilityIcon">
+                <svg class="visibility-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8"></circle>
+                  <path d="M3 12h18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path>
+                  <path d="M12 3c2.5 2.4 4 5.5 4 9s-1.5 6.6-4 9c-2.5-2.4-4-5.5-4-9s1.5-6.6 4-9Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"></path>
+                </svg>
+              </ng-container>
+              <span>{{ board?.visibility | titlecase }}</span>
+            </span>
+          </ng-template>
+          <ng-template #privateVisibilityIcon>
+            <svg class="visibility-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <rect x="5" y="10" width="14" height="10" rx="2.5" stroke="currentColor" stroke-width="1.8"></rect>
+              <path d="M8 10V7.5a4 4 0 1 1 8 0V10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path>
+            </svg>
+          </ng-template>
+          <ng-template #privateReadonlyVisibilityIcon>
+            <svg class="visibility-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <rect x="5" y="10" width="14" height="10" rx="2.5" stroke="currentColor" stroke-width="1.8"></rect>
+              <path d="M8 10V7.5a4 4 0 1 1 8 0V10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path>
+            </svg>
+          </ng-template>
+          <mat-menu #visibilityMenu="matMenu">
+            <button mat-menu-item (click)="updateVisibility('PRIVATE')">
+              <i data-lucide="lock"></i>
+              <span>Private</span>
+            </button>
+            <button mat-menu-item (click)="updateVisibility('PUBLIC')">
+              <i data-lucide="globe"></i>
+              <span>Public</span>
+            </button>
+          </mat-menu>
+
+          <span *ngIf="board?.isClosed" class="status-pill blocked">Closed</span>
+          <span *ngIf="isReadOnly" class="status-pill">Read only</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="toolbar-right">
+      <div class="member-stack">
+        <div class="m-dot" *ngFor="let member of boardMembers | slice:0:3">
+          {{ member.displayName?.[0] || member.userId }}
+        </div>
+        <div class="m-dot plus" *ngIf="boardMembers.length > 3">+{{ boardMembers.length - 3 }}</div>
+      </div>
+
+      <button *ngIf="!isReadOnly" mat-stroked-button class="share-btn" (click)="openShareModal()">
+        <i data-lucide="share-2"></i>
+        <span>Share</span>
+      </button>
+
+      <button *ngIf="!isReadOnly" mat-icon-button [matMenuTriggerFor]="boardActionsMenu" class="more-btn">
+        <i data-lucide="ellipsis"></i>
+      </button>
+
+      <mat-menu #boardActionsMenu="matMenu">
+        <button mat-menu-item (click)="showAnalytics = true">
+          <i data-lucide="chart-column"></i>
+          <span>Analytics</span>
+        </button>
+        <button mat-menu-item (click)="showArchive = true">
+          <i data-lucide="archive"></i>
+          <span>Archived Items</span>
+        </button>
+        <mat-divider></mat-divider>
+        <button mat-menu-item (click)="deleteBoard()">
+          <i data-lucide="trash-2"></i>
+          <span>Delete Board</span>
+        </button>
+      </mat-menu>
+    </div>
+  </section>
+
+  <div class="kanban-area flow-entrance delay-1">
+    <ng-container *ngIf="loading">
+      <div class="lists-container">
+        <div class="skeleton-list" *ngFor="let i of [1,2,3,4]">
+          <div class="skeleton-box skeleton-title"></div>
+          <div class="skeleton-box skeleton-card"></div>
+          <div class="skeleton-box skeleton-card tall"></div>
+          <div class="skeleton-box skeleton-card short"></div>
+        </div>
+      </div>
+    </ng-container>
+
+    <div
+      *ngIf="!loading"
+      cdkDropList
+      cdkDropListOrientation="horizontal"
+      [cdkDropListData]="lists"
+      [cdkDropListDisabled]="isReadOnly"
+      (cdkDropListDropped)="onListDrop($event)"
+      class="lists-container">
+
+      <ng-container *ngFor="let list of lists; let i = index">
+        <div
+          *ngIf="!list.isArchived"
+          cdkDrag
+          [cdkDragDisabled]="isReadOnly"
+          [cdkDragData]="list"
+          class="list-column-wrapper"
+          [ngStyle]="getListTheme(list, i)">
+
+          <div class="list-column surface-glass">
+            <div class="list-header" cdkDragHandle>
+              <div class="list-header-left">
+                <span class="list-dot"></span>
+                <div>
+                  <span class="list-name">{{ list.name }}</span>
+                  <span class="list-helper">{{ getCards(list.id).length ? 'Active tasks' : 'Ready for intake' }}</span>
+                </div>
+              </div>
+
+              <div class="list-header-right">
+                <span class="list-count">{{ getCards(list.id).length }}</span>
+                <button *ngIf="!isReadOnly" mat-icon-button class="list-menu-btn" [matMenuTriggerFor]="listMenu">
+                  <i data-lucide="ellipsis"></i>
+                </button>
+              </div>
+
+              <mat-menu #listMenu="matMenu">
+                <button mat-menu-item (click)="archiveList(list.id)">
+                  <i data-lucide="archive"></i>
+                  <span>Archive</span>
+                </button>
+                <button mat-menu-item (click)="deleteList(list.id)">
+                  <i data-lucide="trash-2"></i>
+                  <span>Delete</span>
+                </button>
+              </mat-menu>
+            </div>
+
+            <div
+              cdkDropList
+              [id]="'list-' + list.id"
+              [cdkDropListData]="getCards(list.id)"
+              [cdkDropListConnectedTo]="getConnectedLists()"
+              [cdkDropListDisabled]="isReadOnly"
+              (cdkDropListDropped)="onCardDrop($event, list.id)"
+              class="cards-container">
+
+              <ng-container *ngIf="getCards(list.id).length === 0">
+                <div class="empty-column-state">
+                  <span class="empty-column-icon"><i data-lucide="inbox"></i></span>
+                  <p>Drop tasks here</p>
+                </div>
+              </ng-container>
+
+              <ng-container *ngFor="let card of getCards(list.id)">
+                <div
+                  *ngIf="!card.isArchived"
+                  cdkDrag
+                  [cdkDragDisabled]="isReadOnly"
+                  [cdkDragData]="card"
+                  class="card-item-wrapper"
+                  (click)="openCardDetail(card)">
+
+                  <article class="card-item" [class.overdue]="card.isOverdue">
+                    <div *ngIf="card.coverColor" class="card-cover" [style.background]="card.coverColor"></div>
+
+                    <div class="card-body">
+                      <div class="card-topline">
+                        <span class="priority-badge" [ngStyle]="getPriorityBadgeStyle(card.priority)">{{ card.priority | titlecase }}</span>
+                        <span class="status-badge" [ngClass]="card.status.toLowerCase()" [ngStyle]="getStatusBadgeStyle(card.status)">{{ getStatusLabel(card.status) }}</span>
+                      </div>
+
+                      <p class="card-title">{{ card.title }}</p>
+
+                      <div class="card-bottomline">
+                        <div class="tag-row">
+                          <span class="due-chip" *ngIf="card.dueDate" [class.is-overdue]="card.isOverdue">
+                            <i data-lucide="calendar-clock"></i>
+                            <span>{{ card.dueDate | date:'MMM d' }}</span>
+                          </span>
+                          <span class="tag-pill" *ngIf="card.description">
+                            <i data-lucide="align-left"></i>
+                            <span>Notes</span>
+                          </span>
+                        </div>
+
+                        <div class="assignee-avatar" *ngIf="card.assigneeId as assignee">{{ assignee }}</div>
+                      </div>
+                    </div>
+
+                    <div *cdkDragPlaceholder class="card-placeholder"></div>
+                  </article>
+                </div>
+              </ng-container>
+            </div>
+
+            <div class="list-footer">
+              <ng-container *ngIf="!showCardDetail && !isReadOnly">
+                <app-card-create
+                  *ngIf="list.id === activeAddCardListId"
+                  [listId]="list.id"
+                  [boardId]="board!.id"
+                  (cardCreated)="onCardCreated($event, list.id); activeAddCardListId = null"
+                  (cancelled)="activeAddCardListId = null">
+                </app-card-create>
+
+                <button *ngIf="list.id !== activeAddCardListId" mat-button class="add-card-btn" (click)="activeAddCardListId = list.id">
+                  <i data-lucide="plus"></i>
+                  <span>Add a card</span>
+                </button>
+              </ng-container>
+            </div>
+          </div>
+        </div>
+      </ng-container>
+    </div>
+
+    <div class="add-list-panel" *ngIf="!loading && !isReadOnly">
+      <div *ngIf="showAddList" class="add-list-form surface-glass">
+        <div>
+          <label class="custom-label">List name <span class="req">*</span></label>
+          <mat-form-field appearance="outline" class="full-width">
+            <input matInput [formControl]="$any(listForm.get('name'))" (keydown.enter)="addList()" (keydown.escape)="showAddList = false" placeholder="e.g. In Progress" autofocus />
+          </mat-form-field>
+        </div>
+        <div class="add-list-actions">
+          <button mat-flat-button (click)="addList()" [disabled]="addingList || listForm.invalid">{{ addingList ? 'Adding...' : 'Add list' }}</button>
+          <button mat-icon-button (click)="showAddList = false; listForm.reset()">
+            <i data-lucide="x"></i>
+          </button>
+        </div>
+      </div>
+
+      <button *ngIf="!showAddList" class="add-list-btn surface-glass" (click)="showAddList = true">
+        <i data-lucide="plus"></i>
+        <span>Add another list</span>
+      </button>
+    </div>
+  </div>
+
+  <div *ngIf="showCardDetail && selectedCard" class="card-detail-overlay" (click)="closeCardDetail()">
+    <div class="card-detail-panel task-panel" (click)="$event.stopPropagation()">
+      <app-card-detail
+        *ngIf="showCardDetail && selectedCard"
+        [card]="selectedCard"
+        [boardMembers]="boardMembers"
+        [readOnly]="isReadOnly"
+        (cardUpdated)="onCardUpdated($event)"
+        (cardDeleted)="onCardDeleted($event)"
+        (closed)="closeCardDetail()">
+      </app-card-detail>
+    </div>
+  </div>
+
+  <div *ngIf="showAnalytics && board" class="card-detail-overlay" (click)="showAnalytics = false">
+    <div class="card-detail-panel analytics-panel" (click)="$event.stopPropagation()">
+      <app-board-analytics [board]="board" [allCards]="getAllCards()"></app-board-analytics>
+    </div>
+  </div>
+
+  <div *ngIf="showArchive" class="card-detail-overlay" (click)="showArchive = false">
+    <div class="card-detail-panel side-panel" (click)="$event.stopPropagation()">
+      <app-archive-manager
+        [archivedCards]="getArchivedCards()"
+        [archivedLists]="getArchivedLists()"
+        (restoreCard)="restoreCard($event)"
+        (restoreList)="restoreList($event)"
+        (closed)="showArchive = false">
+      </app-archive-manager>
+    </div>
+  </div>
+
+  <app-board-share-modal
+    *ngIf="showShareModal && board"
+    [board]="board"
+    (boardUpdated)="board = $event"
+    (closed)="closeShareModal()">
+  </app-board-share-modal>
+</div>

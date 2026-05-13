@@ -1,0 +1,191 @@
+<div class="dashboard-layout flow-page-shell">
+  <main class="dashboard-content flow-page-content">
+    <section class="dashboard-hero surface-glass flow-entrance">
+      <div class="hero-copy">
+        <span class="kicker">Workspace overview</span>
+        <h1 class="page-title">Hey, {{ currentUser?.fullName }}.</h1>
+        <p class="page-subtitle">
+          Keep every workspace moving with a calmer command surface for planning, delegation, and follow-through.
+        </p>
+        <div class="hero-tags">
+          <span class="plan-tag" [class.paid]="isPaidUser">{{ planLabel }}</span>
+          <span class="hero-tag">{{ workspaces.length }} active workspaces</span>
+          <span class="hero-tag">{{ showLimitBanner ? 'Limit reached' : workspaceCapacityLabel }}</span>
+        </div>
+      </div>
+
+      <div class="hero-actions">
+        <button mat-flat-button class="create-btn" (click)="tryCreateWorkspace()" [disabled]="!canCreate">
+          <i data-lucide="plus"></i>
+          <span>New Workspace</span>
+        </button>
+        <a *ngIf="!isPaidUser" routerLink="/pricing" mat-stroked-button class="upgrade-link">
+          <i data-lucide="sparkles"></i>
+          <span>See premium plans</span>
+        </a>
+      </div>
+    </section>
+
+    <section class="stats-grid flow-entrance delay-1">
+      <article class="stat-card surface-glass">
+        <div class="stat-icon"><i data-lucide="briefcase-business"></i></div>
+        <div>
+          <div class="stat-value">{{ workspaces.length }}</div>
+          <div class="stat-label">Workspaces</div>
+        </div>
+      </article>
+
+      <article class="stat-card surface-glass">
+        <div class="stat-icon"><i data-lucide="layers-3"></i></div>
+        <div>
+          <div class="stat-value">{{ workspaces.length ? (workspaces.length * 3) : 0 }}</div>
+          <div class="stat-label">Live board lanes</div>
+        </div>
+      </article>
+
+      <article class="stat-card surface-glass">
+        <div class="stat-icon"><i data-lucide="users-round"></i></div>
+        <div>
+          <div class="stat-value">{{ workspaces.length ? workspaces[0].members.length : 0 }}</div>
+          <div class="stat-label">Members in focus</div>
+        </div>
+      </article>
+
+      <article class="stat-card surface-glass">
+        <div class="stat-icon"><i data-lucide="shield-check"></i></div>
+        <div>
+          <div class="stat-value">{{ canCreate ? 'Ready' : 'Locked' }}</div>
+          <div class="stat-label">Creation state</div>
+        </div>
+      </article>
+    </section>
+
+    <div *ngIf="showLimitBanner" class="limit-banner flow-entrance delay-2">
+      <div class="banner-icon"><i data-lucide="sparkles"></i></div>
+      <div>
+        <p class="limit-title">Workspace limit reached</p>
+        <p class="limit-desc">Free plan allows 3 workspaces. Upgrade to Pro for unlimited creation and broader team control.</p>
+      </div>
+      <a routerLink="/pricing" mat-flat-button class="upgrade-btn">Upgrade to Pro</a>
+    </div>
+
+    <section *ngIf="showCreateForm" class="create-form-card flow-entrance delay-2">
+      <div class="surface-header">
+        <div>
+          <span class="kicker">Quick create</span>
+          <h3 class="form-title">New Workspace</h3>
+        </div>
+      </div>
+
+      <form [formGroup]="createForm" (ngSubmit)="createWorkspace()" class="create-form-grid">
+        <div class="span-2">
+          <label class="custom-label">Name <span class="req">*</span></label>
+          <mat-form-field appearance="outline" class="full-width">
+            <input matInput formControlName="name" placeholder="Engineering Team" />
+            <mat-error *ngIf="name.hasError('required')">Name is required</mat-error>
+          </mat-form-field>
+        </div>
+
+        <div>
+          <label class="custom-label">Visibility <span class="req">*</span></label>
+          <mat-form-field appearance="outline">
+            <mat-select formControlName="visibility">
+              <mat-option value="PRIVATE">Private</mat-option>
+              <mat-option value="PUBLIC">Public</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+
+        <div class="span-2">
+          <label class="custom-label">Description</label>
+          <mat-form-field appearance="outline" class="full-width">
+            <textarea matInput formControlName="description" rows="3" placeholder="What will this workspace help your team deliver?"></textarea>
+          </mat-form-field>
+        </div>
+
+        <div class="form-actions span-2">
+          <button mat-button type="button" (click)="showCreateForm = false">Cancel</button>
+          <button mat-flat-button type="submit" [disabled]="creating || createForm.invalid">{{ creating ? 'Creating...' : 'Create workspace' }}</button>
+        </div>
+      </form>
+    </section>
+
+    <div *ngIf="loading" class="loading-state surface-glass flow-entrance delay-3">
+      <mat-spinner diameter="40"></mat-spinner>
+      <p>Loading workspaces...</p>
+    </div>
+
+    <section *ngIf="!loading && workspaces.length === 0" class="empty-state flow-entrance delay-3">
+      <span class="flow-empty-icon"><i data-lucide="folder-open-dot"></i></span>
+      <h3>No workspaces yet</h3>
+      <p>Create your first workspace to start shaping boards, responsibilities, and momentum.</p>
+      <button mat-flat-button (click)="tryCreateWorkspace()">Create Workspace</button>
+    </section>
+
+    <section class="dashboard-panels" *ngIf="!loading && workspaces.length > 0">
+      <div class="workspace-column flow-entrance delay-3">
+        <div class="section-head">
+          <div>
+            <span class="kicker">Your workspaces</span>
+            <h2>Open surfaces</h2>
+          </div>
+        </div>
+
+        <div class="workspace-grid">
+          <article *ngFor="let ws of workspaces; let i = index" class="workspace-card" (click)="openWorkspace(ws.id)" [style.animationDelay.ms]="i * 60">
+            <div class="card-topline"></div>
+            <div class="card-header">
+              <div class="ws-avatar" [style.background]="'hsl(' + (ws.id * 47 % 360) + ',65%,52%)'">{{ getInitials(ws.name) }}</div>
+              <div class="ws-info">
+                <h3 class="ws-name">{{ ws.name }}</h3>
+                <span class="status-pill" [class.is-public]="ws.visibility === 'PUBLIC'">{{ ws.visibility | titlecase }}</span>
+              </div>
+              <button mat-icon-button class="card-menu" [matMenuTriggerFor]="wsMenu" (click)="$event.stopPropagation()">
+                <i data-lucide="ellipsis"></i>
+              </button>
+            </div>
+
+            <p class="ws-desc">{{ ws.description || 'No description yet. Open this workspace to start shaping the flow.' }}</p>
+
+            <div class="ws-footer">
+              <span class="meta-chip"><i data-lucide="users-round"></i>{{ ws.members.length || 0 }} members</span>
+              <span class="meta-chip text-mono"><i data-lucide="calendar-range"></i>{{ ws.createdAt | date:'MMM d' }}</span>
+            </div>
+
+            <mat-menu #wsMenu="matMenu">
+              <button mat-menu-item (click)="openWorkspace(ws.id)">
+                <i data-lucide="arrow-up-right"></i>
+                <span>Open</span>
+              </button>
+              <button mat-menu-item (click)="deleteWorkspace(ws.id, $event)">
+                <i data-lucide="trash-2"></i>
+                <span>Delete</span>
+              </button>
+            </mat-menu>
+          </article>
+        </div>
+      </div>
+
+      <aside class="activity-column flow-entrance delay-4">
+        <section class="activity-panel surface-glass">
+          <div class="section-head compact">
+            <div>
+              <span class="kicker">Recent activity</span>
+              <h2>Timeline</h2>
+            </div>
+          </div>
+
+          <div class="activity-list">
+            <div class="activity-item" *ngFor="let ws of workspaces | slice:0:4; let i = index">
+              <div class="activity-dot"></div>
+              <div>
+                <p><strong>{{ ws.name }}</strong> is available for planning and collaboration.</p>
+                <span>{{ ws.createdAt | date:'MMM d, y' }}</span>
+              </div>
+            </div>
+          </div>
+        </section>
+      </aside>
+    </section>
+  </main>
+</div>

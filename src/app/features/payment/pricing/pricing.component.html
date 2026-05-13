@@ -1,0 +1,137 @@
+<div class="flow-page-shell pricing-shell">
+  <div class="flow-page-content">
+    <header class="pricing-header">
+      <span class="pricing-kicker">
+        <mat-icon>workspace_premium</mat-icon>
+        Pricing
+      </span>
+      <h1 class="pricing-title">Simple, transparent pricing</h1>
+      <p class="pricing-subtitle">Start free. Upgrade when your team grows, and scale without redesigning your workflow.</p>
+
+      <div class="billing-toggle" role="group" aria-label="Billing toggle">
+        <button class="billing-btn" (click)="billing.set('MONTHLY')" [class.active]="billing()==='MONTHLY'">
+          Monthly
+        </button>
+        <button class="billing-btn" (click)="billing.set('YEARLY')" [class.active]="billing()==='YEARLY'">
+          Yearly
+          <span class="billing-save">SAVE 17%</span>
+        </button>
+      </div>
+    </header>
+
+    @if (hasManagedSubscription()) {
+      <section class="subscription-manager surface-glass">
+        <div class="manager-copy">
+          <span class="manager-kicker">Subscription management</span>
+          <h2>{{ subscription()!.planDisplayName }} Plan</h2>
+          <p>
+            Status: <strong>{{ subscription()!.status }}</strong>
+            <span *ngIf="subscription()!.currentPeriodEnd"> · Period ends {{ subscription()!.currentPeriodEnd | date:'MMM d, y' }}</span>
+          </p>
+        </div>
+
+        <div class="manager-actions">
+          @if (subscription()!.status === 'ACTIVE') {
+            <button mat-flat-button class="manager-cancel-btn" (click)="cancel()">
+              Cancel subscription
+            </button>
+          }
+
+          @if (subscription()!.status === 'CANCELLED') {
+            <div class="cancelled-note">
+              Cancellation scheduled. Your access remains available until the current period ends.
+            </div>
+          }
+        </div>
+      </section>
+    }
+
+    @if (loading()) {
+      <div class="plans-grid">
+        @for (i of [1,2,3]; track i) {
+          <div class="plan-card" style="min-height: 420px; opacity: 0.6;"></div>
+        }
+      </div>
+    }
+
+    @if (!loading() && loadError()) {
+      <div class="active-banner">
+        <div>
+          <p class="active-plan">Unable to load pricing plans</p>
+          <p class="active-meta">{{ loadError() }}</p>
+        </div>
+        <button mat-flat-button (click)="loadPlans()">Retry</button>
+      </div>
+    }
+
+    @if (!loading()) {
+      <div class="plans-grid">
+        @for (plan of (plans().length ? plans() : fallbackPlans()); track plan.id) {
+          <article class="plan-card" [class.featured]="plan.name === 'PRO'">
+            <div class="plan-topline" [class.plan-topline-placeholder]="plan.name !== 'PRO'">
+              {{ plan.name === 'PRO' ? 'Most Popular' : 'Placeholder' }}
+            </div>
+
+            <div class="plan-body">
+              <div>
+                <h3 class="plan-name">{{ plan.displayName }}</h3>
+                <p class="plan-desc">{{ plan.description }}</p>
+              </div>
+
+              <div class="plan-price">
+                <span class="plan-price-value">${{ getPrice(plan) }}</span>
+                <span class="plan-price-meta">
+                  /mo{{ billing() === 'YEARLY' && plan.priceMonthly > 0 ? ', billed yearly' : '' }}
+                </span>
+              </div>
+
+              <button mat-flat-button class="plan-cta"
+                      (click)="subscribe(plan)"
+                      [disabled]="!!loadError() || purchasing() || isCurrentPlan(plan) || (isBusinessActive() && plan.name === 'PRO')">
+                {{ ctaText(plan) }}
+              </button>
+
+              <ul class="features">
+                <li>
+                  <mat-icon>check_circle</mat-icon>
+                  {{ plan.maxWorkspaces === -1 ? 'Unlimited workspaces' : plan.maxWorkspaces + ' workspaces' }}
+                </li>
+                <li>
+                  <mat-icon>check_circle</mat-icon>
+                  {{ plan.maxBoardsPerWorkspace === -1 ? 'Unlimited boards' : plan.maxBoardsPerWorkspace + ' boards per workspace' }}
+                </li>
+                <li>
+                  <mat-icon>check_circle</mat-icon>
+                  {{ plan.maxMembersPerWorkspace === -1 ? 'Unlimited members' : 'Up to ' + plan.maxMembersPerWorkspace + ' members' }}
+                </li>
+                <li [class.muted]="!plan.hasAdvancedAnalytics">
+                  <mat-icon>{{ plan.hasAdvancedAnalytics ? 'check_circle' : 'cancel' }}</mat-icon>
+                  Advanced analytics & board stats
+                </li>
+                <li [class.muted]="!plan.hasCustomFields">
+                  <mat-icon>{{ plan.hasCustomFields ? 'check_circle' : 'cancel' }}</mat-icon>
+                  Custom card fields
+                </li>
+                <li [class.muted]="!plan.hasAutomation">
+                  <mat-icon>{{ plan.hasAutomation ? 'check_circle' : 'cancel' }}</mat-icon>
+                  Automation rules
+                </li>
+                <li [class.muted]="!plan.hasPrioritySupport">
+                  <mat-icon>{{ plan.hasPrioritySupport ? 'check_circle' : 'cancel' }}</mat-icon>
+                  Priority support
+                </li>
+              </ul>
+            </div>
+          </article>
+        }
+      </div>
+    }
+
+    <div class="footer-note">
+      <p>
+        All plans include due-date reminders, overdue alerts, and activity logs.
+        <a routerLink="/dashboard">Back to dashboard</a>
+      </p>
+    </div>
+  </div>
+</div>

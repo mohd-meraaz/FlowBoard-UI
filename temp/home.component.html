@@ -1,0 +1,355 @@
+<!-- Animated Background Blobs -->
+<div class="animated-blobs">
+  <div class="blob blob-1"></div>
+  <div class="blob blob-2"></div>
+  <div class="blob blob-3"></div>
+</div>
+
+<!-- Sticky Navigation Bar -->
+<nav class="navbar" [class.scrolled]="scrolled">
+  <div class="navbar-container">
+    <div class="navbar-brand">
+      <span class="logo-icon">⚡</span>
+      <span class="brand-name">FlowBoard</span>
+    </div>
+
+    <ul class="nav-links">
+      <li><a [routerLink]="['/']">Home</a></li>
+      <li><a [routerLink]="['/']" [fragment]="'features'">Features</a></li>
+      <li><a [routerLink]="['/']" [fragment]="'architecture'">About</a></li>
+    </ul>
+
+    <div class="nav-actions">
+      <button mat-button class="btn-ghost" routerLink="/login">
+        Sign In
+      </button>
+      <button mat-raised-button class="btn-gradient" routerLink="/register">
+        Get Started
+      </button>
+    </div>
+  </div>
+</nav>
+
+<!-- Hero Section -->
+<section class="hero">
+  <div class="hero-content">
+    <div class="hero-badge">
+      <span class="badge-icon">✨</span>
+      <span>Enterprise-Grade Project Management</span>
+    </div>
+
+    <h1 class="hero-title">
+      Your team's workflow,
+      <span class="gradient-text">supercharged</span>
+    </h1>
+
+    <p class="hero-subtitle">
+      Seamless collaboration meets enterprise architecture. FlowBoard powers teams worldwide
+      with real-time updates, drag-and-drop simplicity, and microservices reliability.
+    </p>
+
+    <div class="hero-actions">
+      <button mat-raised-button class="btn-primary-hero" routerLink="/login">
+        <mat-icon>arrow_forward</mat-icon>
+        Sign In
+      </button>
+      <button mat-raised-button class="btn-secondary-hero" routerLink="/register">
+        <mat-icon>play_arrow</mat-icon>
+        Create Account
+      </button>
+    </div>
+
+    <p class="hero-social-proof">
+      ⭐ Trusted by 500+ teams · 🚀 No credit card required
+    </p>
+  </div>
+
+  <!-- Fake Kanban Board Preview -->
+  <div class="kanban-preview">
+    <div class="kanban-header">
+      <span class="kanban-title">Project Sprint</span>
+      <span class="kanban-date">April 2026</span>
+    </div>
+    <div class="kanban-board">
+      <!-- To-Do Column -->
+      <div class="kanban-column">
+        <div class="column-header">
+          <span class="column-badge">To-Do</span>
+          <span class="column-count">3</span>
+        </div>
+        <div class="task-card">
+          <div class="task-label">Design System</div>
+          <div class="task-meta">•••</div>
+        </div>
+        <div class="task-card">
+          <div class="task-label">API Integration</div>
+          <div class="task-meta">•••</div>
+        </div>
+        <div class="task-card">
+          <div class="task-label">User Testing</div>
+          <div class="task-meta">•••</div>
+        </div>
+      </div>
+
+      <!-- In Progress Column -->
+      <div class="kanban-column">
+        <div class="column-header">
+          <span class="column-badge in-progress">In Progress</span>
+          <span class="column-count">2</span>
+        </div>
+        <div class="task-card active">
+          <div class="task-label">Frontend Build</div>
+          <div class="task-meta">•••</div>
+        </div>
+        <div class="task-card">
+          <div class="task-label">Bug Fixes</div>
+          <div class="task-meta">•••</div>
+        </div>
+      </div>
+
+      <!-- Done Column -->
+      <div class="kanban-column">
+        <div class="column-header">
+          <span class="column-badge done">Done</span>
+          <span class="column-count">5</span>
+        </div>
+        <div class="task-card completed">
+          <div class="task-label">Database Setup</div>
+          <div class="task-meta">✓</div>
+        </div>
+        <div class="task-card completed">
+          <div class="task-label">Auth System</div>
+          <div class="task-meta">✓</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Features Section -->
+<section class="features" id="features">
+  <div class="section-container">
+    <div class="section-header">
+      <h2>Everything your team needs</h2>
+      <p>All-in-one platform for project management and collaboration</p>
+    </div>
+
+    <div class="features-grid">
+      <div *ngFor="let feature of features" class="feature-card">
+        <div class="feature-emoji">{{ feature.emoji }}</div>
+        <h3 class="feature-title">{{ feature.title }}</h3>
+        <p class="feature-description">{{ feature.description }}</p>
+        <div class="feature-hover-effect"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Architecture Section -->
+<section class="architecture" id="architecture">
+  <div class="section-container">
+    <h2 class="section-title">Built for enterprise scale</h2>
+
+    <div class="architecture-grid">
+      <!-- Left: Text Content -->
+      <div class="architecture-text">
+        <h3>Microservices vs. Traditional Monolith</h3>
+        <p class="architecture-intro">
+          FlowBoard's distributed microservices architecture provides unparalleled reliability, scalability,
+          and maintainability. Each service operates independently, ensuring your workflow never stops.
+        </p>
+
+        <div class="services-list">
+          <div class="service-pill">
+            <span class="service-icon">🔐</span>
+            <span class="service-name">Authentication Service</span>
+            <span class="service-desc">Secure user management</span>
+          </div>
+          <div class="service-pill">
+            <span class="service-icon">📋</span>
+            <span class="service-name">Task Service</span>
+            <span class="service-desc">Project & task management</span>
+          </div>
+          <div class="service-pill">
+            <span class="service-icon">🔔</span>
+            <span class="service-name">Notification Service</span>
+            <span class="service-desc">Real-time updates</span>
+          </div>
+          <div class="service-pill">
+            <span class="service-icon">💳</span>
+            <span class="service-name">Billing Service</span>
+            <span class="service-desc">Subscription management</span>
+          </div>
+        </div>
+
+        <div class="architecture-benefits">
+          <div class="benefit">
+            <span class="check-icon">✓</span>
+            <span>99.9% uptime guarantee</span>
+          </div>
+          <div class="benefit">
+            <span class="check-icon">✓</span>
+            <span>Infinite horizontal scalability</span>
+          </div>
+          <div class="benefit">
+            <span class="check-icon">✓</span>
+            <span>Independent service updates</span>
+          </div>
+          <div class="benefit">
+            <span class="check-icon">✓</span>
+            <span>Enterprise security & compliance</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: Architecture Diagram -->
+      <div class="architecture-diagram">
+        <div class="diagram-container">
+          <!-- API Gateway -->
+          <div class="service-box gateway">
+            <span class="service-box-icon">🌐</span>
+            <span>API Gateway</span>
+          </div>
+
+          <!-- Services Row -->
+          <div class="services-row">
+            <div class="service-box">
+              <span class="service-box-icon">🔐</span>
+              <span>Auth</span>
+            </div>
+            <div class="service-box">
+              <span class="service-box-icon">📋</span>
+              <span>Tasks</span>
+            </div>
+            <div class="service-box">
+              <span class="service-box-icon">🔔</span>
+              <span>Notifications</span>
+            </div>
+            <div class="service-box">
+              <span class="service-box-icon">💳</span>
+              <span>Billing</span>
+            </div>
+          </div>
+
+          <!-- Database -->
+          <div class="service-box database">
+            <span class="service-box-icon">💾</span>
+            <span>Distributed Database</span>
+          </div>
+
+          <!-- Connection Lines (CSS-based) -->
+          <svg class="diagram-lines" viewBox="0 0 400 300">
+            <!-- Gateway to services lines -->
+            <line x1="200" y1="60" x2="80" y2="120" class="connection-line" />
+            <line x1="200" y1="60" x2="170" y2="120" class="connection-line" />
+            <line x1="200" y1="60" x2="230" y2="120" class="connection-line" />
+            <line x1="200" y1="60" x2="320" y2="120" class="connection-line" />
+            <!-- Services to database lines -->
+            <line x1="80" y1="170" x2="200" y2="220" class="connection-line" />
+            <line x1="170" y1="170" x2="200" y2="220" class="connection-line" />
+            <line x1="230" y1="170" x2="200" y2="220" class="connection-line" />
+            <line x1="320" y1="170" x2="200" y2="220" class="connection-line" />
+          </svg>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Testimonials Section -->
+<section class="testimonials">
+  <div class="section-container">
+    <div class="testimonials-grid">
+      <div *ngFor="let testimonial of testimonials" class="testimonial-card">
+        <div class="testimonial-text">
+          <p>"{{ testimonial.text }}"</p>
+        </div>
+        <div class="testimonial-author">
+          <div class="author-avatar">{{ testimonial.avatar }}</div>
+          <div class="author-info">
+            <div class="author-name">{{ testimonial.name }}</div>
+            <div class="author-role">{{ testimonial.role }} &#64; {{ testimonial.company }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA Banner -->
+<section class="cta-banner">
+  <div class="section-container">
+    <div class="banner-content">
+      <h2>Ready to supercharge your team?</h2>
+      <p>Join hundreds of teams already using FlowBoard to ship faster</p>
+
+      <div class="banner-actions">
+        <button mat-raised-button class="btn-banner-primary" routerLink="/login">
+          Start Free Trial
+        </button>
+        <button mat-raised-button class="btn-banner-secondary" routerLink="/register">
+          Schedule Demo
+        </button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer class="footer">
+<footer class="footer">
+  <div class="footer-container">
+    <div class="footer-content">
+      <!-- Brand Column -->
+      <div class="footer-section">
+        <div class="footer-brand">
+          <span class="logo-icon">⚡</span>
+          <span>FlowBoard</span>
+        </div>
+        <p>Enterprise project management for modern teams.</p>
+        <div class="footer-socials">
+          <a href="#" class="social-link">Twitter</a>
+          <a href="#" class="social-link">LinkedIn</a>
+          <a href="#" class="social-link">GitHub</a>
+        </div>
+      </div>
+
+      <!-- Product Column -->
+      <div class="footer-section">
+        <h4>Product</h4>
+        <ul>
+          <li><a [routerLink]="['/']" [fragment]="'features'">Features</a></li>
+          <li><a [routerLink]="['/']" [fragment]="'architecture'">Architecture</a></li>
+          <li><a href="#">Pricing</a></li>
+          <li><a href="#">Security</a></li>
+        </ul>
+      </div>
+
+      <!-- Company Column -->
+      <div class="footer-section">
+        <h4>Company</h4>
+        <ul>
+          <li><a href="#">About</a></li>
+          <li><a href="#">Blog</a></li>
+          <li><a href="#">Careers</a></li>
+          <li><a href="#">Contact</a></li>
+        </ul>
+      </div>
+
+      <!-- Legal Column -->
+      <div class="footer-section">
+        <h4>Legal</h4>
+        <ul>
+          <li><a href="#">Privacy</a></li>
+          <li><a href="#">Terms</a></li>
+          <li><a href="#">Compliance</a></li>
+          <li><a href="#">Status</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <p>&copy; 2026 FlowBoard. All rights reserved. Built with ⚡ for teams that move fast.</p>
+    </div>
+  </div>
+</footer>

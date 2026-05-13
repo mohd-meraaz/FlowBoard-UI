@@ -1,0 +1,188 @@
+<div class="admin-container flow-page-shell">
+  <div class="flow-page-content">
+    <header class="admin-header flow-entrance">
+      <span class="kicker">Platform operations</span>
+      <h1 class="admin-title">Administration</h1>
+      <p class="admin-subtitle">Monitor your system, review the shape of work, and tune access with measured precision.</p>
+    </header>
+
+    @if ((error$ | async); as err) {
+      <div class="admin-error flow-entrance delay-1">
+        <i data-lucide="triangle-alert"></i>
+        <div class="admin-error-text">
+          <div class="admin-error-title">Admin data failed to load</div>
+          <div class="admin-error-msg">{{ err }}</div>
+        </div>
+      </div>
+    }
+
+    <section class="stats-grid flow-entrance delay-1">
+      <article class="stat-card surface-glass stat-card-clickable" [class.featured]="isStatActive(0)" (click)="openUsersTab()">
+        <div class="stat-top">
+          <div class="stat-icon"><i data-lucide="users-round"></i></div>
+          <span class="stat-label">Total users</span>
+        </div>
+        <div class="stat-value">{{ (liveStats$ | async)?.totalUsers || 0 }}</div>
+      </article>
+
+      <article class="stat-card surface-glass stat-card-clickable" [class.featured]="isStatActive(1)" (click)="openWorkspacesTab()">
+        <div class="stat-top">
+          <div class="stat-icon"><i data-lucide="briefcase-business"></i></div>
+          <span class="stat-label">Workspaces</span>
+        </div>
+        <div class="stat-value">{{ (liveStats$ | async)?.totalWorkspaces || 0 }}</div>
+      </article>
+
+      <article class="stat-card surface-glass stat-card-clickable" [class.featured]="isStatActive(2)" (click)="openBoardsTab()">
+        <div class="stat-top">
+          <div class="stat-icon"><i data-lucide="layout-grid"></i></div>
+          <span class="stat-label">Boards</span>
+        </div>
+        <div class="stat-value">{{ (liveStats$ | async)?.totalBoards || 0 }}</div>
+      </article>
+
+      <article class="stat-card surface-glass" [class.featured]="isStatActive(3)">
+        <div class="stat-top">
+          <div class="stat-icon"><i data-lucide="activity"></i></div>
+          <span class="stat-label">Active today</span>
+        </div>
+        <div class="stat-value">{{ (liveStats$ | async)?.activeUsersToday || 0 }}</div>
+      </article>
+    </section>
+
+    <mat-tab-group class="modern-tabs admin-tabs surface-glass" [(selectedIndex)]="selectedTabIndex" (selectedTabChange)="onTabChanged($event)">
+      <mat-tab label="User Management">
+        <div class="tab-surface">
+          <div class="table-scroll">
+            <table mat-table [dataSource]="(users$ | async) || []" class="admin-table">
+            <ng-container matColumnDef="avatar">
+              <th mat-header-cell *matHeaderCellDef class="admin-th">User</th>
+              <td mat-cell *matCellDef="let user" class="admin-td">
+                <div class="user-avatar">{{ user.fullName?.[0] || user.email?.[0] || 'U' }}</div>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="name">
+              <th mat-header-cell *matHeaderCellDef class="admin-th">Full Name</th>
+              <td mat-cell *matCellDef="let user" class="admin-td strong">{{ user.fullName }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="email">
+              <th mat-header-cell *matHeaderCellDef class="admin-th">Email Address</th>
+              <td mat-cell *matCellDef="let user" class="admin-td muted text-mono">{{ user.email }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="role">
+              <th mat-header-cell *matHeaderCellDef class="admin-th">Role</th>
+              <td mat-cell *matCellDef="let user">
+                <span class="role-pill" [class.admin]="user.role === 'PLATFORM_ADMIN'">{{ user.role }}</span>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="actions">
+              <th mat-header-cell *matHeaderCellDef class="admin-th">Actions</th>
+              <td mat-cell *matCellDef="let user">
+                <button mat-icon-button [matMenuTriggerFor]="userActions"><i data-lucide="ellipsis"></i></button>
+                <mat-menu #userActions="matMenu">
+                  <button mat-menu-item (click)="changeRole(user.id, 'PLATFORM_ADMIN')"><i data-lucide="shield"></i><span>Make Admin</span></button>
+                  <button mat-menu-item (click)="changeRole(user.id, 'BOARD_OWNER')"><i data-lucide="badge-check"></i><span>Make Owner</span></button>
+                  <button mat-menu-item (click)="changeRole(user.id, 'MEMBER')"><i data-lucide="user-round"></i><span>Make Member</span></button>
+                  <mat-divider></mat-divider>
+                  <button mat-menu-item (click)="toggleUserActive(user.id, user.active)"><i [attr.data-lucide]="user.active ? 'user-x' : 'user-check'"></i><span>{{ user.active ? 'Deactivate' : 'Reactivate' }}</span></button>
+                </mat-menu>
+              </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="userColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: userColumns;"></tr>
+            </table>
+          </div>
+        </div>
+      </mat-tab>
+
+      <mat-tab label="Workspaces">
+        <div class="tab-surface">
+          <div class="table-scroll">
+            <table mat-table [dataSource]="(workspaces$ | async) || []" class="admin-table">
+            <ng-container matColumnDef="id">
+              <th mat-header-cell *matHeaderCellDef class="admin-th">ID</th>
+              <td mat-cell *matCellDef="let workspace" class="admin-td strong text-mono">{{ workspace.id }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="name">
+              <th mat-header-cell *matHeaderCellDef class="admin-th">Workspace Name</th>
+              <td mat-cell *matCellDef="let workspace" class="admin-td strong">{{ workspace.name }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="ownerId">
+              <th mat-header-cell *matHeaderCellDef class="admin-th">Owner ID</th>
+              <td mat-cell *matCellDef="let workspace" class="admin-td text-mono">{{ workspace.ownerId }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="visibility">
+              <th mat-header-cell *matHeaderCellDef class="admin-th">Visibility</th>
+              <td mat-cell *matCellDef="let workspace" class="admin-td"><span class="role-pill">{{ workspace.visibility }}</span></td>
+            </ng-container>
+
+            <ng-container matColumnDef="members">
+              <th mat-header-cell *matHeaderCellDef class="admin-th">Members</th>
+              <td mat-cell *matCellDef="let workspace" class="admin-td">{{ workspace.members?.length || 0 }}</td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="workspaceColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: workspaceColumns;"></tr>
+            </table>
+          </div>
+        </div>
+      </mat-tab>
+
+      <mat-tab label="Boards">
+        <div class="tab-surface">
+          <div class="table-scroll">
+            <table mat-table [dataSource]="(boards$ | async) || []" class="admin-table">
+            <ng-container matColumnDef="id">
+              <th mat-header-cell *matHeaderCellDef class="admin-th">ID</th>
+              <td mat-cell *matCellDef="let board" class="admin-td strong text-mono">{{ board.id }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="name">
+              <th mat-header-cell *matHeaderCellDef class="admin-th">Board Name</th>
+              <td mat-cell *matCellDef="let board" class="admin-td strong">{{ board.name }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="workspaceId">
+              <th mat-header-cell *matHeaderCellDef class="admin-th">Workspace ID</th>
+              <td mat-cell *matCellDef="let board" class="admin-td text-mono">{{ board.workspaceId }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="visibility">
+              <th mat-header-cell *matHeaderCellDef class="admin-th">Visibility</th>
+              <td mat-cell *matCellDef="let board" class="admin-td"><span class="role-pill">{{ board.visibility }}</span></td>
+            </ng-container>
+
+            <ng-container matColumnDef="members">
+              <th mat-header-cell *matHeaderCellDef class="admin-th">Members</th>
+              <td mat-cell *matCellDef="let board" class="admin-td">{{ board.memberCount }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="status">
+              <th mat-header-cell *matHeaderCellDef class="admin-th">Status</th>
+              <td mat-cell *matCellDef="let board" class="admin-td"><span class="role-pill" [class.admin]="!board.isClosed">{{ board.isClosed ? 'Closed' : 'Active' }}</span></td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="boardColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: boardColumns;"></tr>
+            </table>
+          </div>
+        </div>
+      </mat-tab>
+
+      <mat-tab label="System Health">
+        <div class="tab-placeholder">
+          <span class="flow-empty-icon"><i data-lucide="heart-pulse"></i></span>
+          <p class="placeholder-title">System monitoring tools coming soon.</p>
+        </div>
+      </mat-tab>
+    </mat-tab-group>
+  </div>
+</div>
