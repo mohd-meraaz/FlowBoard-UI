@@ -56,9 +56,7 @@ Thumbs.db
 # Angular cache
 .angular/cache
 
-# Environment files
-/src/environments/environment.ts
-/src/environments/environment.prod.ts
+
 
 # Testing
 /coverage
