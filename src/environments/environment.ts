@@ -1,4 +1,10 @@
+const backendBaseUrl = 'http://18.208.84.37:8080';
+const frontendBaseUrl = 'http://18.208.84.37:4200';
+
 export const environment = {
   production: false,
-  apiUrl: 'http://localhost:8080/api/v1'
+  backendBaseUrl,
+  frontendBaseUrl,
+  apiUrl: `${backendBaseUrl}/api/v1`,
+  oauthUrl: backendBaseUrl
 };

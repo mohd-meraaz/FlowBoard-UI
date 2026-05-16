@@ -12,6 +12,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { AuthService } from '../../../core/services/auth.service';
+import { environment } from '../../../../environments/environment';
 
 declare global {
   interface Window {
@@ -40,6 +41,7 @@ export class RegisterComponent {
   loading      = false;
   errorMessage = '';
   successMessage = '';
+  googleAuthUrl = `${environment.oauthUrl}/oauth2/authorization/google`;
 
   form: FormGroup = this.fb.group({
     fullName: ['', [Validators.required, Validators.minLength(2)]],

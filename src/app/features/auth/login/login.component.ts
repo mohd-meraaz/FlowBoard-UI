@@ -12,6 +12,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatCardModule } from '@angular/material/card';
 import { AuthService } from '../../../core/services/auth.service';
+import { environment } from '../../../../environments/environment';
 
 declare global {
   interface Window {
@@ -44,6 +45,7 @@ export class LoginComponent {
   loading       = false;
   hidePassword  = true;
   errorMessage  = '';
+  googleAuthUrl = `${environment.oauthUrl}/oauth2/authorization/google`;
 
   get email()    { return this.form.get('email')!; }
   get password() { return this.form.get('password')!; }

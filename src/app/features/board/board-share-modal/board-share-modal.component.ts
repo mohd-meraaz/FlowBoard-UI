@@ -8,6 +8,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 
 import { Board, BoardSharedEmail } from '../../../core/models/board.model';
 import { BoardService } from '../../../core/services/board.service';
+import { environment } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-board-share-modal',
@@ -26,6 +27,7 @@ import { BoardService } from '../../../core/services/board.service';
 export class BoardShareModalComponent {
   private boardService = inject(BoardService);
   private snack = inject(MatSnackBar);
+  private frontendBaseUrl = environment.frontendBaseUrl.replace(/\/$/, '');
 
   @Input({ required: true }) board!: Board;
   @Output() closed = new EventEmitter<void>();
@@ -166,7 +168,7 @@ export class BoardShareModalComponent {
     this.loadingShareLink = true;
     this.boardService.createShareLink(this.board.id).subscribe({
       next: res => {
-        this.publicShareUrl = `${window.location.origin}${res.path}`;
+        this.publicShareUrl = `${this.frontendBaseUrl}${res.path}`;
         this.loadingShareLink = false;
         if (copyWhenReady) {
           void this.copyPublicLink();
